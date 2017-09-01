@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>拖动div</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		body {
+			background: #ccc;
+			height: 1500px;
+		}
+		.dropDiv{
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100px;
+			height: 100px;
+			background: #000;
+			cursor: move;
+		}
+	</style>
+</head>
+<body>
+	<div class="dropDiv"></div>
+	<script type="text/javascript" src="https://s.ssl.qhres.com/lib/jquery/183.js"></script>
+	<script type="text/javascript">
+		$.fn.drop = function() {
+			var $doc = $(document);
+			var diffX, diffY = 0;
+			var $this = $(this);
+
+			function handleMouseMove(e) {
+				var _x = e.clientX - diffX;
+	            var _y = e.clientY - diffY - $(window).scrollTop();
+	            $this.css({left: _x + "px", top: _y + "px"});
+			}
+
+			function handleMouseUp(e) {
+				$doc.off("mousemove", handleMouseMove);
+				$doc.off("mouseup", handleMouseUp);
+			}
+
+			$this.on("mousedown", function(e) {
+				var offset = $this.offset();
+	            diffX = e.clientX - offset.left;
+	           	diffY = e.clientY - offset.top;
+
+	           	// 防止焦点丢失时，mouseup没有触发，导致拖动区域粘连
+	           	if ($this[0].setCapture) {
+                    $this[0].setCapture();
+                }
+                else if (window.captureEvents) {
+                	window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+                }
+
+	           	$doc.on("mousemove", handleMouseMove);
+	           	$doc.on("mouseup", handleMouseUp);
+			});
+		}
+
+		$(".dropDiv").drop();
+	</script>
+</body>
+</html>
